@@ -7,6 +7,9 @@ import config
 import models
 import logging
 import dataset
+import copy
+import scipy.io
+import numpy as np
 
 parser = argparse.ArgumentParser(description='MI')
 parser.add_argument('--model', type=str, default='fullscale', metavar='M',
@@ -126,11 +129,21 @@ def test(epoch, n=1):
     test_loss = 0
     count = 0
     log_step = 10 if not cfg.ci else 1
+    all_output = None
+    all_target = None
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(test_loader):
             data, target = data.to(device), target.to(device)
             output = model(data)
             test_loss += criterion(output.view(target.shape), target).item()
+            if all_output is None:
+                all_output = copy.deepcopy(output)
+            else:
+                all_output = torch.cat([all_output, copy.deepcopy(output)], 0)
+            if all_target is None:
+                all_target = copy.deepcopy(target)
+            else:
+                all_target = torch.cat([all_target, copy.deepcopy(target)], 0)
             count += len(data)
             if batch_idx % log_step == 0:
                 logging.info('Test Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -139,6 +152,9 @@ def test(epoch, n=1):
 
     test_loss /= len(test_loader.dataset)
     logging.info('Test set: Average loss: {:.4f}'.format(test_loss))
+    predict_file = os.path.join(save_folder, args.model + '_' + str(epoch) + (
+        ('_' + str(n)) if n != 1 else '') + cfg.paths.predict_file)
+    scipy.io.savemat(predict_file, {'predict': np.array(all_output), 'real': np.array(all_target)})
 
 
 if __name__ == '__main__':
