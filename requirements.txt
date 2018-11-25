@@ -1,3 +1,4 @@
-h5py==2.8.0
-numpy==1.14.3
-urllib3==1.13.1
+scipy
+numpy
+h5py
+urllib3
