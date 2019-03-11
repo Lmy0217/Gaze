@@ -154,7 +154,7 @@ def test(epoch, n=1):
     logging.info('Test set: Average loss: {:.4f}'.format(test_loss))
     predict_file = os.path.join(save_folder, args.model + '_' + str(epoch) + (
         ('_' + str(n)) if n != 1 else '') + cfg.paths.predict_file)
-    scipy.io.savemat(predict_file, {'predict': np.array(all_output), 'real': np.array(all_target)})
+    scipy.io.savemat(predict_file, {'predict': np.array(all_output.to('cpu')), 'real': np.array(all_target.to('cpu'))})
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 
-def test_models(cuda):
+def test_all_models(cuda):
     models.test_cnn(cuda)
     models.test_capsule(cuda)
     models.test_resnet(cuda)
@@ -21,4 +21,4 @@ def test_models(cuda):
 
 
 if __name__ == "__main__":
-    test_models(args.cuda)
+    test_all_models(args.cuda)
